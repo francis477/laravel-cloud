@@ -1,10 +1,11 @@
-name: Pushing to the staging server live
+name: CI-CD
 
 on:
   push:
-    branches:
-      - main
+    branches: main
+
 jobs:
+
   setup:
     runs-on: ubuntu-latest
     steps:
@@ -26,39 +27,50 @@ jobs:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
         run: vendor/bin/phpunit
+  # deploy:
+  #   name: Deploy
+  #   runs-on: ubuntu-latest
+  #   needs: setup
+  #   steps:
+  #     - uses: actions/checkout@v2.1.0
+  #       with:
+  #         fetch-depth: 2
 
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-latest
-    needs: setup
-    steps:
-      - uses: actions/checkout@v2.1.0
-        with:
-          fetch-depth: 2
+  #     - name: Install Composer Dependencies
 
-      - name: Install Composer Dependencies
-        run: composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
+  #       run: composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
 
-      - name: Create zipped vendor directory
-        uses: montudor/action-zip@v0.1.0
-        with:
-          args: zip -qq -r ./vendor.zip ./vendor
+  #     - name: Create zipped vendor directory
+  #       uses: montudor/action-zip@v0.1.0
+  #       with:
+  #         args: zip -qq -r ./vendor.zip ./vendor
 
-      - name: FTP-Deploy-Action
-        uses: SamKirkland/FTP-Deploy-Action@3.1.1
-        with:
-          ftp-server: ${{ secrets.ftp_server }}
-          ftp-username: ${{ secrets.ftp_username }}
-          ftp-password: ${{ secrets.ftp_password }}
-
+      # - name: FTP-Deploy-Action
+      #   uses: SamKirkland/FTP-Deploy-Action@3.1.1
+      #   with:
+      #     ftp-server: ${{ secrets.ftp_server }}
+      #     ftp-username: ${{ secrets.ftp_username }}
+      #     ftp-password: ${{ secrets.ftp_password }}
   post-deploy:
       runs-on: ubuntu-latest
       needs: deploy
       steps:
         - name: Pass ssh
-          uses: atymic/deployer-php-action@master
+          uses: appleboy/ssh-action@master
           with:
-            ssh-known-hosts: ${{ secrets.ssh_host }}
-            ssh-private-key: ${{ secrets.ssh_key }}
+            host: ${{ secrets.HOST_NAME }}
+            key: ${{ secrets.HOST_KEY }}
+            username: ${{ secrets.SSH_USERNAME }}
+            port : 22
+            # script: './server_deploy.sh'
+            script: |
+              cd /var/www/html/
+              git pull origin main
+              composer install
 
-
+            # ssh-known-hosts: ${{ secrets.ssh_host }}
+            # ssh-private-key: ${{ secrets.ssh_key }}
+        # - name: Deploy to Prod
+        # env:
+        #   DOT_ENV: ${{ secrets.DOT_ENV_STAGING }}
+        # run: dep deploy staging --tag=${{ env.GITHUB_REF }} -vvv
