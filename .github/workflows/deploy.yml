@@ -16,9 +16,8 @@ jobs:
 
           script: |
             cd /var/www/html
-            mkdir laravel
             cd laravel
-            git pull
+            git pull origin main
             echo "Deploy success"
             
          
