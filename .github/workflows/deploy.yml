@@ -16,6 +16,7 @@ jobs:
 
           script: |
             cd /var/www/html
+            cd laravel-cloud
             git pull
             echo "Deploy success"
             
