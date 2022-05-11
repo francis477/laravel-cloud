@@ -15,8 +15,6 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
 
           script: |
-            sudo chown -R www-data:www-data /var/www/html
-            sudo chown -R risto:risto /var/www/html
             cd /var/www/html
             git clone git@github.com:francis477/laravel-cloud.git
             echo "Deploy success"
