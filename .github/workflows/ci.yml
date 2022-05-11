@@ -7,7 +7,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy Laravel APP
+      - name: Deploy APP
         uses: appleboy/ssh-action@v0.1.4
         with:
           host: ${{secrets.HOST_NAME}}
@@ -15,6 +15,6 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
 
           script: |
-            cd /var/www/admin
+            cd /var/www/html/
             git pull origin main
          
