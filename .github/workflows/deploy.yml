@@ -17,7 +17,7 @@ jobs:
           script: |
             cd /var/www/html
             cd laravel
-            git pull origin main
+            git clone git@github.com:francis477/laravel-cloud.git
             echo "Deploy success"
             
          
